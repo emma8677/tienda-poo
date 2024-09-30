@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace tienda_2._1._1
 {
+
     internal class Ticket
     {
+        private static int numeroCompra = 1000; // Inicialización del número de compra
+
         public List<Articulo> Lista { get; set; } = new List<Articulo>();
         public decimal Total { get; set; }
         public decimal Pagado { get; set; }
@@ -15,6 +18,11 @@ namespace tienda_2._1._1
         public DateTime Fecha { get; set; }
         public int NumCompra { get; set; }
         public decimal IVA { get; set; }
+
+        public Ticket()
+        {
+            NumCompra = numeroCompra++;
+        }
 
         public void MostrarTicket()
         {
@@ -25,17 +33,16 @@ namespace tienda_2._1._1
 
             foreach (var articulo in Lista)
             {
-                Console.WriteLine($"- {articulo.Nombre}: Cantidad: {articulo.Cantidad}, Precio Unitario: {articulo.Precio:C}, Subtotal: {articulo.CalcularSubtotal():C}");
+                Console.WriteLine($"- {articulo.Nombre}: Cantidad: {articulo.Cantidad}, Precio Unitario: {articulo.Precio:F2} MXN, Subtotal: {articulo.CalcularSubtotal():F2} MXN");
             }
 
             Console.WriteLine("\n--- Resumen de la Compra ---");
-            Console.WriteLine($"Total (sin IVA): {Total:C}");
-            Console.WriteLine($"IVA (16%): {IVA:C}");
-            Console.WriteLine($"Total (con IVA): {(Total + IVA):C}");
-            Console.WriteLine($"Pagado: {Pagado:C}");
-            Console.WriteLine($"Cambio: {Cambio:C}");
+            Console.WriteLine($"Total (sin IVA): {Total:F2} MXN");
+            Console.WriteLine($"IVA (16%): {IVA:F2} MXN");
+            Console.WriteLine($"Total (con IVA): {(Total + IVA):F2} MXN");
+            Console.WriteLine($"Pagado: {Pagado:F2} MXN");
+            Console.WriteLine($"Cambio: {Cambio:F2} MXN");
             Console.WriteLine("-----------------------------");
         }
     }
-
 }

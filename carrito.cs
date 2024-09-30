@@ -20,7 +20,7 @@ namespace tienda_2._1._1
             }
             else
             {
-                articulosEnCarrito.Add(articulo);
+                articulosEnCarrito.Add(articulo.Clonar()); // Clonar para no modificar el inventario original
             }
         }
 
@@ -40,7 +40,7 @@ namespace tienda_2._1._1
             {
                 foreach (var articulo in articulosEnCarrito)
                 {
-                    Console.WriteLine($"ID: {articulo.ID}, Nombre: {articulo.Nombre}, Cantidad: {articulo.Cantidad}, Precio Unitario: {articulo.Precio:C}, Subtotal: {articulo.CalcularSubtotal():C}");
+                    Console.WriteLine($"ID: {articulo.ID}, Nombre: {articulo.Nombre}, Cantidad: {articulo.Cantidad}, Precio Unitario: {articulo.Precio:F2} MXN, Subtotal: {articulo.CalcularSubtotal():F2} MXN");
                 }
             }
         }
@@ -54,6 +54,10 @@ namespace tienda_2._1._1
             }
             return total;
         }
-    }
 
+        public void VaciarCarrito()
+        {
+            articulosEnCarrito.Clear();
+        }
+    }
 }

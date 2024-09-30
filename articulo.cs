@@ -18,5 +18,17 @@ namespace tienda_2._1._1
         {
             return Precio * Cantidad;
         }
+
+        // Método para clonar el artículo (para evitar modificar el inventario original)
+        public Articulo Clonar()
+        {
+            return new Articulo
+            {
+                ID = this.ID,
+                Nombre = this.Nombre,
+                Precio = this.Precio,
+                Cantidad = this.Cantidad
+            };
+        }
     }
 }

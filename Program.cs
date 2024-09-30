@@ -14,75 +14,113 @@ namespace tienda_2._1._1
             // Llenar el catálogo con productos
             Catalogo.LlenarCatalogo();
 
-            Carrito carrito = new Carrito();
-            Ticket ticket = new Ticket();
+            bool continuarComprando = true;
 
-            while (true)
+            while (continuarComprando)
             {
-                Console.WriteLine("\nSelecciona el artículo (ingresa '0' para finalizar):");
-                Catalogo.MostrarCatalogo();
+                Carrito carrito = new Carrito();
+                Ticket ticket = new Ticket();
 
-                if (!int.TryParse(Console.ReadLine(), out int artID))
+                Console.WriteLine("\n--- Nueva Compra ---");
+
+                while (true)
                 {
-                    Console.WriteLine("Por favor ingresa un número válido.");
-                    continue;
+                    Console.WriteLine("\nSelecciona el artículo (ingresa '0' para finalizar la selección):");
+                    Catalogo.MostrarCatalogo();
+
+                    string entrada = Console.ReadLine();
+
+                    if (!int.TryParse(entrada, out int artID))
+                    {
+                        Console.WriteLine("Por favor, ingresa un número válido.");
+                        continue;
+                    }
+
+                    if (artID == 0)
+                        break;
+
+                    Articulo articuloSeleccionado = Catalogo.BuscarArticuloPorID(artID);
+
+                    if (articuloSeleccionado != null)
+                    {
+                        carrito.AgregarArticulo(articuloSeleccionado);
+                        Console.WriteLine($"Artículo '{articuloSeleccionado.Nombre}' agregado al carrito.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Artículo no encontrado. Por favor, intenta nuevamente.");
+                    }
                 }
 
-                if (artID == 0) break;
+                // Mostrar los artículos en el carrito
+                carrito.MostrarArticulosEnCarrito();
 
-                Articulo articuloSeleccionado = Catalogo.BuscarArticuloPorID(artID);
-
-                if (articuloSeleccionado != null)
+                if (carrito.ObtenerArticulos().Count == 0)
                 {
-                    carrito.AgregarArticulo(articuloSeleccionado);
-                    Console.WriteLine($"Artículo '{articuloSeleccionado.Nombre}' agregado al carrito.");
+                    Console.WriteLine("No se ha seleccionado ningún artículo. La compra se cancelará.");
                 }
                 else
                 {
-                    Console.WriteLine("Artículo no encontrado.");
+                    // Calcular total y generar ticket
+                    decimal totalSinIVA = carrito.CalcularTotal();
+                    decimal iva = Math.Round(totalSinIVA * 0.16m, 2); // 16% de IVA redondeado a 2 decimales
+
+                    decimal totalConIVA = totalSinIVA + iva;
+
+                    // Solicitar el monto pagado
+                    decimal montoPagado;
+                    while (true)
+                    {
+                        Console.WriteLine($"\nTotal a pagar (sin IVA): {totalSinIVA:F2} MXN");
+                        Console.WriteLine($"IVA (16%): {iva:F2} MXN");
+                        Console.WriteLine($"Total a pagar (con IVA): {totalConIVA:F2} MXN");
+                        Console.WriteLine("Ingrese el monto con el que va a pagar:");
+
+                        string pagoEntrada = Console.ReadLine();
+
+                        if (!decimal.TryParse(pagoEntrada, out montoPagado))
+                        {
+                            Console.WriteLine("Por favor, ingresa un monto válido.");
+                            continue;
+                        }
+
+                        if (montoPagado < totalConIVA)
+                        {
+                            Console.WriteLine("El monto pagado es insuficiente. Ingrese un monto mayor o igual al total.");
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    decimal cambio = Math.Round(montoPagado - totalConIVA, 2);
+
+                    // Llenar detalles del ticket
+                    ticket.Lista = carrito.ObtenerArticulos();
+                    ticket.Total = Math.Round(totalSinIVA, 2);
+                    ticket.IVA = iva;
+                    ticket.Pagado = Math.Round(montoPagado, 2);
+                    ticket.Cambio = cambio;
+                    ticket.Fecha = DateTime.Now;
+
+                    // Mostrar el ticket completo
+                    ticket.MostrarTicket();
+
+                    Console.WriteLine("Gracias por su compra.");
+                }
+
+                // Preguntar si desea realizar otra compra
+                Console.WriteLine("\n¿Desea realizar otra compra? (S/N):");
+                string respuesta = Console.ReadLine().Trim().ToUpper();
+
+                if (respuesta != "S")
+                {
+                    continuarComprando = false;
                 }
             }
 
-            // Mostrar los artículos en el carrito
-            carrito.MostrarArticulosEnCarrito();
-
-            // Calcular total y generar ticket
-            decimal totalSinIVA = carrito.CalcularTotal();
-            decimal iva = totalSinIVA * 0.16m; // 16% de IVA
-
-            Console.WriteLine($"\nTotal a pagar (sin IVA): {totalSinIVA:C}");
-            Console.WriteLine($"IVA (16%): {iva:C}");
-            decimal totalConIVA = totalSinIVA + iva;
-            Console.WriteLine($"Total a pagar (con IVA): {totalConIVA:C}");
-
-            // Solicitar el monto pagado
-            Console.WriteLine("Ingrese el monto con el que va a pagar:");
-            decimal montoPagado;
-            while (!decimal.TryParse(Console.ReadLine(), out montoPagado) || montoPagado < totalConIVA)
-            {
-                Console.WriteLine("El monto pagado es insuficiente. Ingrese un monto mayor o igual al total.");
-            }
-
-            decimal cambio = montoPagado - totalConIVA;
-
-            // Llenar detalles del ticket
-            ticket.Lista = carrito.ObtenerArticulos();
-            ticket.Total = totalSinIVA;
-            ticket.IVA = iva;
-            ticket.Pagado = montoPagado;
-            ticket.Cambio = cambio;
-            ticket.Fecha = DateTime.Now;
-            ticket.NumCompra = new Random().Next(1000, 9999); // Generar un número de compra aleatorio
-
-            // Mostrar el ticket completo
-            ticket.MostrarTicket();
-
-            Console.WriteLine("Gracias por su compra.");
-
-            // Pausar la ejecución para evitar que el programa se cierre inmediatamente
             Console.WriteLine("\nPresione cualquier tecla para salir...");
             Console.ReadKey();  // Pausa hasta que el usuario presione una tecla
         }
     }
 }
-
